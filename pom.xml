@@ -36,10 +36,13 @@
             <scope>runtime</scope>
             <version>5.1.47</version>
         </dependency>
+        <!-- 在 <dependencies> 里，把原来的 lombok 依赖改成这样 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.30</version> <!-- 显式指定新版，兼容 JDK 17/21 -->
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
