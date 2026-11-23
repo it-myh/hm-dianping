@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.hmdp.utils.RedisConstants.*;
@@ -97,11 +98,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 保存用户的信息到Redis中
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         Map<String, Object> map = new HashMap<>();
-        map.put("id", userDTO.getId());
+        // 需要将id转换为字符串，不然会报错
+        map.put("id", userDTO.getId().toString());
         map.put("nickName", userDTO.getNickName());
         map.put("icon", userDTO.getIcon());
-        stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY + user.getId(), map);
-        return Result.ok();
+        String token = UUID.randomUUID().toString();
+        String key = LOGIN_USER_KEY + token;
+        stringRedisTemplate.opsForHash().putAll(key, map);
+        // 然后设置token的过期时间30分钟，用户三十分钟内未操作，token过期
+        stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.MINUTES);
+        return Result.ok(token);
     }
 
     private User saveUserWithPhone(String phone) {
