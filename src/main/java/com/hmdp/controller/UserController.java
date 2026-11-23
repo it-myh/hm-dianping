@@ -5,12 +5,14 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.system.SystemUtil;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
 import com.hmdp.entity.UserInfo;
 import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.RedisConstants;
 import com.hmdp.utils.RegexUtils;
+import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -55,8 +57,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session){
-        // TODO 实现登录功能
-        return Result.ok();
+        return userService.login(loginForm, session);
     }
 
     /**
@@ -71,8 +72,9 @@ public class UserController {
 
     @GetMapping("/me")
     public Result me(){
-        // TODO 获取当前登录的用户并返回
-        return Result.fail("功能未完成");
+        // 获取当前用户的信息
+        UserDTO user = UserHolder.getUser();
+        return Result.ok(user);
     }
 
     @GetMapping("/info/{id}")
