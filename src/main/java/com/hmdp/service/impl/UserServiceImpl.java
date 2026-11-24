@@ -83,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 从Redis中获取验证码
         String loginCode = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + phone);
         // 校验验证码是否一致
-        if(loginCode.isEmpty() || !loginCode.equals(loginForm.getCode())){
+        if(loginCode == null || loginCode.isEmpty() || !loginCode.equals(loginForm.getCode())){
             return Result.fail("验证码错误");
         }
         // 更具手机号查询用户
