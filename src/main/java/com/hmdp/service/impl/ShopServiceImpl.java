@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
+import java.util.concurrent.TimeUnit;
+
+import static com.hmdp.utils.RedisConstants.*;
 
 /**
  * <p>
@@ -43,12 +45,26 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         Shop shop = getById(id);
         if(shop == null){
             // 如果是id下面没有商铺也将其加入缓存中，防止大量的请求访问数据库，导致缓存穿透
-            stringRedisTemplate.opsForValue().set(key, "");
+            stringRedisTemplate.opsForValue().set(key, "", CACHE_NULL_TTL, TimeUnit.MINUTES);
             return Result.fail("商铺不存在");
         }
         // 4.如果数据库有，写入缓存，下次就可以直接返回了
-        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(shop));
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(shop), CACHE_SHOP_TTL, TimeUnit.MINUTES);
         // 5.然后返回商铺信息
         return Result.ok(shop);
+    }
+
+    @Override
+    public Result updateByShop(Shop shop) {
+        // 1.先判断商铺id是否存在
+        Long id = shop.getId();
+        if(id == null){
+            return Result.fail("商铺id不能为空");
+        }
+        // 2.先更新数据库
+        updateById(shop);
+        // 3.删除缓存
+        stringRedisTemplate.delete(CACHE_SHOP_KEY + id);
+        return Result.ok();
     }
 }
