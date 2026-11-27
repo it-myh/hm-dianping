@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * <p>
  * 前端控制器
@@ -22,7 +24,6 @@ import jakarta.annotation.Resource;
 @RestController
 @RequestMapping("/shop")
 public class ShopController {
-
     @Resource
     public IShopService shopService;
 
